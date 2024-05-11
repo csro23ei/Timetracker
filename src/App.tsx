@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import TaskList from './TaskList';
 import TaskForm from './TaskForm';
-import './App.css'; // Importera CSS-filen för styling
-
+import './App.css'; 
 interface Task {
   id: number;
   name: string;
   timeElapsed: number;
-  intervalId?: ReturnType<typeof setInterval>; // Use ReturnType<typeof setInterval> to define intervalId
+  intervalId?: ReturnType<typeof setInterval>; 
 }
 
 const App: React.FC = () => {
-  // State to keep track of active tasks
+ 
   const [tasks, setTasks] = useState<Task[]>([]);
-  // State to keep track of completed tasks
+
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
 
   useEffect(() => {
@@ -27,13 +26,6 @@ const App: React.FC = () => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
     localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
   }, [tasks, completedTasks]);
-
-  const formatTime = (timeElapsed: number) => {
-    const hours = Math.floor(timeElapsed / 3600);
-    const minutes = Math.floor((timeElapsed % 3600) / 60);
-    const seconds = timeElapsed % 60;
-    return `${hours} timmar ${minutes} minuter ${seconds} sekunder`;
-  };
 
   const startTask = (taskId: number) => {
     const taskIndex = tasks.findIndex(task => task.id === taskId);
@@ -54,11 +46,11 @@ const App: React.FC = () => {
       updatedTasks[taskIndex].intervalId = intervalId;
       setTasks(updatedTasks);
     } else if (activeTaskIndex !== -1) {
-      // Om det redan finns en aktiv uppgift, visa en popup-meddelanderuta för att låta användaren välja vad de vill göra
+      
       const confirmMessage = "Det finns redan en aktiv uppgift. Vill du starta en till? OK komer låta dig starta två saker samtidigt";
       const result = window.confirm(confirmMessage);
       if (result) {
-        // Om användaren väljer att starta en till uppgift, starta den nya uppgiften
+    
         const startTime = Date.now();
         const intervalId = setInterval(() => {
           const timeElapsed = Math.floor((Date.now() - startTime) / 1000);
@@ -87,13 +79,13 @@ const App: React.FC = () => {
     }
   };
 
-  // Function to remove a completed task
+ 
   const removeCompletedTask = (taskId: number) => {
     const updatedCompletedTasks = completedTasks.filter(task => task.id !== taskId);
     setCompletedTasks(updatedCompletedTasks);
   };
 
-  // Function to add a new task
+
   const addTask = (taskName: string) => {
     const newTask = {
       id: Date.now(),
@@ -109,6 +101,7 @@ const App: React.FC = () => {
         <h2>Vad gör du nu?</h2>
         <TaskForm onSubmit={addTask} />
         <div className="task-container">
+         
           <TaskList tasks={tasks} onStart={startTask} onStop={stopTask} />
         </div>
       </div>
@@ -119,17 +112,8 @@ const App: React.FC = () => {
           <ul>
             {completedTasks.map(task => (
               <li key={task.id} className="completed-task-item">
-                {task.name} - {formatTime(task.timeElapsed)}
+                {task.name} - {Math.floor(task.timeElapsed / 3600)} timmar {Math.floor((task.timeElapsed % 3600) / 60)} minuter {task.timeElapsed % 60} sekunder
                 <button onClick={() => removeCompletedTask(task.id)}>Ta bort</button>
-              </li>
-            ))}
-          </ul>
-          <h3>Pågående uppgifter</h3>
-          <ul>
-            {tasks.map(task => (
-              <li key={task.id} className="completed-task-item">
-                {task.name} - {formatTime(task.timeElapsed)}
-                <button onClick={() => stopTask(task.id)}>Avsluta</button>
               </li>
             ))}
           </ul>
@@ -140,3 +124,5 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+
