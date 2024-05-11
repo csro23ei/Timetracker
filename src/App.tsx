@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TaskList from './TaskList';
 import TaskForm from './TaskForm';
+import './App.css'; // Importera CSS-filen för styling
 
 interface Task {
   id: number;
@@ -16,7 +17,6 @@ const App: React.FC = () => {
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
 
   useEffect(() => {
-    // Load previously saved tasks from localStorage when the component renders
     const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
     const savedCompletedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
     setTasks(savedTasks);
@@ -24,10 +24,16 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Save updated tasks to localStorage when tasks or completedTasks update
     localStorage.setItem('tasks', JSON.stringify(tasks));
     localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
   }, [tasks, completedTasks]);
+
+  const formatTime = (timeElapsed: number) => {
+    const hours = Math.floor(timeElapsed / 3600);
+    const minutes = Math.floor((timeElapsed % 3600) / 60);
+    const seconds = timeElapsed % 60;
+    return `${hours} timmar ${minutes} minuter ${seconds} sekunder`;
+  };
 
   const startTask = (taskId: number) => {
     const taskIndex = tasks.findIndex(task => task.id === taskId);
@@ -98,26 +104,39 @@ const App: React.FC = () => {
   };
 
   return (
-    <div>
-      <div style={{ float: 'left', marginRight: '50px' }}>
+    <div className="app-container">
+      <div className="task-section">
         <h2>Vad gör du nu?</h2>
         <TaskForm onSubmit={addTask} />
-        <TaskList tasks={tasks} onStart={startTask} onStop={stopTask} />
+        <div className="task-container">
+          <TaskList tasks={tasks} onStart={startTask} onStop={stopTask} />
+        </div>
       </div>
-      <div>
+      <div className="completed-task-section">
         <h2>Det har du gjort</h2>
-        <ul>
-          {completedTasks.map(task => (
-            <li key={task.id}>
-              {task.name} - {Math.floor(task.timeElapsed / 3600)} timmar {Math.floor((task.timeElapsed % 3600) / 60)} minuter {task.timeElapsed % 60} sekunder
-              <button onClick={() => removeCompletedTask(task.id)}>Ta bort</button>
-            </li>
-          ))}
-        </ul>
+        <div className="completed-task-container">
+          <h3>Avslutade uppgifter</h3>
+          <ul>
+            {completedTasks.map(task => (
+              <li key={task.id} className="completed-task-item">
+                {task.name} - {formatTime(task.timeElapsed)}
+                <button onClick={() => removeCompletedTask(task.id)}>Ta bort</button>
+              </li>
+            ))}
+          </ul>
+          <h3>Pågående uppgifter</h3>
+          <ul>
+            {tasks.map(task => (
+              <li key={task.id} className="completed-task-item">
+                {task.name} - {formatTime(task.timeElapsed)}
+                <button onClick={() => stopTask(task.id)}>Avsluta</button>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
 };
 
 export default App;
-
